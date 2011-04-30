@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-h3. SETUP
+h3. Setup
 
 Simply include this class into your project like so:
 
@@ -37,7 +37,7 @@ I usually include them in a globally included config file.
 
 @MYSQL_NAME@ = The name of your database
 
-h3. USAGE
+h3. Usage
 
 
 To use this class, you'd first init the object like so:
