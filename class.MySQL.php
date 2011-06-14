@@ -251,7 +251,7 @@ class MySQL {
 	// 'Arrays' multiple result
 	function ArrayResults(){
 		$this->aArrayedResults = array();
-		for ($i = 0; $aData = mysql_fetch_assoc($this->aResult); $i++){
+		while ($aData = mysql_fetch_assoc($this->aResult){
 			$this->aArrayedResults[] = $aData;
 		}
 		return $this->aArrayedResults;
