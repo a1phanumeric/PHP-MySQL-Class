@@ -1,4 +1,22 @@
 <?php
+/*
+ *  Copyright (C) 2011
+ *     Ed Rackham (http://github.com/a1phanumeric/PHP-MySQL-Class)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 // MySQL Class
 class MySQL {
 	// Base variables
@@ -229,6 +247,15 @@ class MySQL {
 		$this->aArrayedResult = mysql_fetch_assoc($this->aResult) or die (mysql_error());
 		return $this->aArrayedResult;
 	}
+
+	// 'Arrays' multiple result
+	function ArrayResults(){
+		$this->aArrayedResults = array();
+		for ($i = 0; $aData = mysql_fetch_assoc($this->aResult); $i++){
+			$this->aArrayedResults[] = $aData;
+		}
+		return $this->aArrayedResults;
+	}
 	
 	// 'Arrays' multiple results with a key
 	function ArrayResultsWithKey($sKey='id'){
@@ -259,3 +286,4 @@ class MySQL {
 	}
 }
 ?>
+
