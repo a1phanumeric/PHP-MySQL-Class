@@ -20,14 +20,14 @@
 // MySQL Class
 class MySQL {
 	// Base variables
-	var $sLastError;		// Holds the last error
-	var $sLastQuery;		// Holds the last query
-	var $aResult;			// Holds the MySQL query result
-	var $iRecords;			// Holds the total number of records returned
-	var $iAffected;			// Holds the total number of records affected
-	var $aRawResults;		// Holds raw 'arrayed' results
-	var $aArrayedResult;	// Holds a single 'arrayed' result
-	var $aArrayedResults;	// Holds multiple 'arrayed' results (usually with a set key)
+	var $sLastError;				// Holds the last error
+	var $sLastQuery;				// Holds the last query
+	var $aResult;					// Holds the MySQL query result
+	var $iRecords;					// Holds the total number of records returned
+	var $iAffected;					// Holds the total number of records affected
+	var $aRawResults;				// Holds raw 'arrayed' results
+	var $aArrayedResult;			// Holds a single 'arrayed' result
+	var $aArrayedResults;			// Holds multiple 'arrayed' results (usually with a set key)
 	
 	var $sHostname = MYSQL_HOST;	// MySQL Hostname
 	var $sUsername = MYSQL_USER;	// MySQL Username
@@ -56,12 +56,12 @@ class MySQL {
 		}
 		
 		if (!$this->sDBLink){
-   			$this->sLastError = 'Could not connect to server: ' . mysql_error();
+   			$this->sLastError = 'Could not connect to server: ' . mysql_error($this->sDBLink);
 			return false;
 		}
 		
 		if(!$this->UseDB()){
-			$this->sLastError = 'Could not connect to database: ' . mysql_error();
+			$this->sLastError = 'Could not connect to database: ' . mysql_error($this->sDBLink);
 			return false;
 		}
 		return true;
@@ -69,8 +69,8 @@ class MySQL {
 	
 	// Select database to use
 	function UseDB(){
-		if (!mysql_select_db($this->sDatabase)) {
-			$this->sLastError ='Cannot select database: ' . mysql_error();
+		if (!mysql_select_db($this->sDatabase, $this->sDBLink)) {
+			$this->sLastError ='Cannot select database: ' . mysql_error($this->sDBLink);
 			return false;
 		}else{
 			return true;
@@ -80,12 +80,12 @@ class MySQL {
 	// Executes MySQL query
 	function ExecuteSQL($sSQLQuery){
 		$this->sLastQuery 	= $sSQLQuery;
-		if($this->aResult 		= mysql_query($sSQLQuery)){
+		if($this->aResult 		= mysql_query($sSQLQuery, $this->sDBLink)){
 			$this->iRecords 	= @mysql_num_rows($this->aResult);
-			$this->iAffected	= @mysql_affected_rows();
+			$this->iAffected	= @mysql_affected_rows($this->sDBLink);
 			return true;
 		}else{
-			$this->sLastError = mysql_error();
+			$this->sLastError = mysql_error($this->sDBLink);
 			return false;
 		}
 	}
@@ -244,14 +244,14 @@ class MySQL {
 	
 	// 'Arrays' a single result
 	function ArrayResult(){
-		$this->aArrayedResult = mysql_fetch_assoc($this->aResult) or die (mysql_error());
+		$this->aArrayedResult = mysql_fetch_assoc($this->aResult) or die (mysql_error($this->sDBLink));
 		return $this->aArrayedResult;
 	}
 
 	// 'Arrays' multiple result
 	function ArrayResults(){
 		$this->aArrayedResults = array();
-		for ($i = 0; $aData = mysql_fetch_assoc($this->aResult); $i++){
+		while ($aData = mysql_fetch_assoc($this->aResult)){
 			$this->aArrayedResults[] = $aData;
 		}
 		return $this->aArrayedResults;
@@ -276,14 +276,14 @@ class MySQL {
 		if(is_array($aData)){
 			foreach($aData as $iKey=>$sVal){
 				if(!is_array($aData[$iKey])){
-					$aData[$iKey] = mysql_real_escape_string($aData[$iKey]);
+					$aData[$iKey] = mysql_real_escape_string($aData[$iKey], $this->sDBLink);
 				}
 			}
 		}else{
-			$aData = mysql_real_escape_string($aData);
+			$aData = mysql_real_escape_string($aData, $this->sDBLink);
 		}
 		return $aData;
 	}
 }
-?>
 
+?>
