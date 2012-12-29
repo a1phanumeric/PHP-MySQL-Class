@@ -78,6 +78,36 @@ And voila:
 +----+---------------+
 ```
 
+To get the results into a usable array, just use `$oMySQL->Select('admin')` ...for example, doing the following:
+
+`print_r($oMySQL->Select('admin'));`
+
+will yield:
+
+```
+Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [username] => superuser
+        )
+
+    [1] => Array
+        (
+            [id] => 2
+            [username] => a1phanumeric
+        )
+
+    [2] => Array
+        (
+            [id] => 3
+            [username] => Thrackhamator
+        )
+
+)
+```
+
 ### License
 
 This program is free software: you can redistribute it and/or modify
