@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright (C) 2011
+ *  Copyright (C) 2012
  *     Ed Rackham (http://github.com/a1phanumeric/PHP-MySQL-Class)
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -17,272 +17,293 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// MySQL Class
+// MySQL Class v0.8
 class MySQL {
+	
 	// Base variables
-	var $sLastError;				// Holds the last error
-	var $sLastQuery;				// Holds the last query
-	var $aResult;					// Holds the MySQL query result
-	var $iRecords;					// Holds the total number of records returned
-	var $iAffected;					// Holds the total number of records affected
-	var $aRawResults;				// Holds raw 'arrayed' results
-	var $aArrayedResult;			// Holds a single 'arrayed' result
-	var $aArrayedResults;			// Holds multiple 'arrayed' results (usually with a set key)
+	var $lastError;					// Holds the last error
+	var $lastQuery;					// Holds the last query
+	var $result;						// Holds the MySQL query result
+	var $records;						// Holds the total number of records returned
+	var $affected;					// Holds the total number of records affected
+	var $rawResults;				// Holds raw 'arrayed' results
+	var $arrayedResult;			// Holds an array of the result
 	
-	var $sHostname = MYSQL_HOST;	// MySQL Hostname
-	var $sUsername = MYSQL_USER;	// MySQL Username
-	var $sPassword = MYSQL_PASS;	// MySQL Password
-	var $sDatabase = MYSQL_NAME;	// MySQL Database
+	var $hostname;	// MySQL Hostname
+	var $username;	// MySQL Username
+	var $password;	// MySQL Password
+	var $database;	// MySQL Database
 	
-	var $sDBLink;			// Database Connection Link
+	var $databaseLink;		// Database Connection Link
 	
-	// Class Constructor
-	// Assigning values to variables
-	function MySQL(){
+
+
+	/* *******************
+	 * Class Constructor *
+	 * *******************/
+	
+	function MySQL($database, $username, $password, $hostname='localhost'){
+		$this->database = $database;
+		$this->username = $username;
+		$this->password = $password;
+		$this->hostname = $hostname;
+		
 		$this->Connect();
 	}
 	
+	
+	
+	/* *******************
+	 * Private Functions *
+	 * *******************/
+	
 	// Connects class to database
-	// $bPersistant (boolean) - Use persistant connection?
-	function Connect($bPersistant = false){
-		if($this->sDBLink){
-			mysql_close($this->sDBLink);
+	// $persistant (boolean) - Use persistant connection?
+	private function Connect($persistant = false){
+		if($this->databaseLink){
+			mysql_close($this->databaseLink);
 		}
 		
-		if($bPersistant){
-			$this->sDBLink = mysql_pconnect($this->sHostname, $this->sUsername, $this->sPassword);
+		if($persistant){
+			$this->databaseLink = mysql_pconnect($this->hostname, $this->username, $this->password);
 		}else{
-			$this->sDBLink = mysql_connect($this->sHostname, $this->sUsername, $this->sPassword);
+			$this->databaseLink = mysql_connect($this->hostname, $this->username, $this->password);
 		}
 		
-		if (!$this->sDBLink){
-   			$this->sLastError = 'Could not connect to server: ' . mysql_error($this->sDBLink);
+		if(!$this->databaseLink){
+   		$this->lastError = 'Could not connect to server: ' . mysql_error($this->databaseLink);
 			return false;
 		}
 		
 		if(!$this->UseDB()){
-			$this->sLastError = 'Could not connect to database: ' . mysql_error($this->sDBLink);
+			$this->lastError = 'Could not connect to database: ' . mysql_error($this->databaseLink);
 			return false;
 		}
 		return true;
 	}
 	
+	
 	// Select database to use
-	function UseDB(){
-		if (!mysql_select_db($this->sDatabase, $this->sDBLink)) {
-			$this->sLastError ='Cannot select database: ' . mysql_error($this->sDBLink);
+	private function UseDB(){
+		if(!mysql_select_db($this->database, $this->databaseLink)){
+			$this->lastError = 'Cannot select database: ' . mysql_error($this->databaseLink);
 			return false;
 		}else{
 			return true;
 		}
 	}
+	
+	
+	// Performs a 'mysql_real_escape_string' on the entire array/string
+	private function SecureData($data){
+		if(is_array($data)){
+			foreach($data as $key=>$val){
+				if(!is_array($data[$key])){
+					$data[$key] = mysql_real_escape_string($data[$key], $this->databaseLink);
+				}
+			}
+		}else{
+			$data = mysql_real_escape_string($data, $this->databaseLink);
+		}
+		return $data;
+	}
+	
+	
+	
+	/* ******************
+	 * Public Functions *
+	 * ******************/
 	
 	// Executes MySQL query
-	function ExecuteSQL($sSQLQuery){
-		$this->sLastQuery 	= $sSQLQuery;
-		if($this->aResult 		= mysql_query($sSQLQuery, $this->sDBLink)){
-			$this->iRecords 	= @mysql_num_rows($this->aResult);
-			$this->iAffected	= @mysql_affected_rows($this->sDBLink);
-			return true;
+	function ExecuteSQL($query){
+		$this->lastQuery 	= $query;
+		if($this->result 	= mysql_query($query, $this->databaseLink)){
+			$this->records 	= @mysql_num_rows($this->result);
+			$this->affected	= @mysql_affected_rows($this->databaseLink);
+			
+			if($this->records > 0){
+				$this->ArrayResults();
+				return $this->arrayedResult;
+			}else{
+				return true;
+			}
+			
 		}else{
-			$this->sLastError = mysql_error($this->sDBLink);
+			$this->lastError = mysql_error($this->databaseLink);
 			return false;
 		}
 	}
 	
-	// Adds a record to the database
-	// based on the array key names
-	function Insert($aVars, $sTable, $aExclude = ''){
-		// Catch Exceptions
-		if($aExclude == ''){
-			$aExclude = array();
+	
+	// Adds a record to the database based on the array key names
+	function Insert($vars, $table, $exclude = ''){
+		
+		// Catch Exclusions
+		if($exclude == ''){
+			$exclude = array();
 		}
 		
-		array_push($aExclude, 'MAX_FILE_SIZE');
+		array_push($exclude, 'MAX_FILE_SIZE'); // Automatically exclude this one
 		
 		// Prepare Variables
-		$aVars = $this->SecureData($aVars);
+		$vars = $this->SecureData($vars);
 		
-		$sSQLQuery = 'INSERT INTO `' . $sTable . '` SET ';
-		foreach($aVars as $iKey=>$sValue){
-			if(in_array($iKey, $aExclude)){
+		$query = "INSERT INTO `{$table}` SET ";
+		foreach($vars as $key=>$value){
+			if(in_array($key, $exclude)){
 				continue;
 			}
-			$sSQLQuery .= '`' . $iKey . '` = "' . $sValue . '", ';
+			//$query .= '`' . $key . '` = "' . $value . '", ';
+			$query .= "`{$key}` = '{$value}', ";
 		}
 		
-		$sSQLQuery = substr($sSQLQuery, 0, -2);
+		$query = substr($query, 0, -2);
 		
-		if($this->ExecuteSQL($sSQLQuery)){
-			return true;
-		}else{
-			return false;
-		}
+		return $this->ExecuteSQL($query);
 	}
 	
 	// Deletes a record from the database
-	function Delete($sTable, $aWhere='', $sLimit='', $bLike=false){
-		$sSQLQuery = 'DELETE FROM `' . $sTable . '` WHERE ';
-		if(is_array($aWhere) && $aWhere != ''){
+	function Delete($table, $where='', $limit='', $like=false){
+		$query = "DELETE FROM `{$table}` WHERE ";
+		if(is_array($where) && $where != ''){
 			// Prepare Variables
-			$aWhere = $this->SecureData($aWhere);
+			$where = $this->SecureData($where);
 			
-			foreach($aWhere as $iKey=>$sValue){
-				if($bLike){
-					$sSQLQuery .= '`' . $iKey . '` LIKE "%' . $sValue . '%" AND ';
+			foreach($where as $key=>$value){
+				if($like){
+					//$query .= '`' . $key . '` LIKE "%' . $value . '%" AND ';
+					$query .= "`{$key}` LIKE '%{$value}%' AND ";
 				}else{
-					$sSQLQuery .= '`' . $iKey . '` = "' . $sValue . '" AND ';
+					//$query .= '`' . $key . '` = "' . $value . '" AND ';
+					$query .= "`{$key}` = '{$value}' AND ";
 				}
 			}
 			
-			$sSQLQuery = substr($sSQLQuery, 0, -5);
+			$query = substr($query, 0, -5);
 		}
 		
-		if($sLimit != ''){
-			$sSQLQuery .= ' LIMIT ' .$sLimit;
+		if($limit != ''){
+			$query .= ' LIMIT ' . $limit;
 		}
 		
-		if($this->ExecuteSQL($sSQLQuery)){
-			return true;
-		}else{
-			return false;
-		}
+		return $this->ExecuteSQL($query);
 	}
 	
-	// Gets a single row from $1
-	// where $2 is true
-	function Select($sFrom, $aWhere='', $sOrderBy='', $sLimit='', $bLike=false, $sOperand='AND'){
+	
+	// Gets a single row from $from where $where is true
+	function Select($from, $where='', $orderBy='', $limit='', $like=false, $operand='AND'){
 		// Catch Exceptions
-		if(trim($sFrom) == ''){
+		if(trim($from) == ''){
 			return false;
 		}
 		
-		$sSQLQuery = 'SELECT * FROM `' . $sFrom . '` WHERE ';
+		$query = "SELECT * FROM `{$from}` WHERE ";
 		
-		if(is_array($aWhere) && $aWhere != ''){
+		if(is_array($where) && $where != ''){
 			// Prepare Variables
-			$aWhere = $this->SecureData($aWhere);
+			$where = $this->SecureData($where);
 			
-			foreach($aWhere as $iKey=>$sValue){
-				if($bLike){
-					$sSQLQuery .= '`' . $iKey . '` LIKE "%' . $sValue . '%" ' . $sOperand . ' ';
+			foreach($where as $key=>$value){
+				if($like){
+					//$query .= '`' . $key . '` LIKE "%' . $value . '%" ' . $operand . ' ';
+					$query .= "`{$key}` LIKE '%{$value}%' {$operand} ";
 				}else{
-					$sSQLQuery .= '`' . $iKey . '` = "' . $sValue . '" ' . $sOperand . ' ';
+					//$query .= '`' . $key . '` = "' . $value . '" ' . $operand . ' ';
+					$query .= "`{$key}` = '{$value}' {$operand} ";
 				}
 			}
 			
-			$sSQLQuery = substr($sSQLQuery, 0, -5);
+			$query = substr($query, 0, -5);
 
 		}else{
-			$sSQLQuery = substr($sSQLQuery, 0, -7);
+			$query = substr($query, 0, -7);
 		}
 		
-		if($sOrderBy != ''){
-			$sSQLQuery .= ' ORDER BY ' .$sOrderBy;
+		if($orderBy != ''){
+			$query .= ' ORDER BY ' . $orderBy;
 		}
 		
-		if($sLimit != ''){
-			$sSQLQuery .= ' LIMIT ' .$sLimit;
+		if($limit != ''){
+			$query .= ' LIMIT ' . $limit;
 		}
 		
-		if($this->ExecuteSQL($sSQLQuery)){
-			if($this->iRecords > 0){
-				$this->ArrayResults();
-			}
-			return true;
-		}else{
-			return false;
-		}
+		return $this->ExecuteSQL($query);
 		
 	}
 	
-	// Updates a record in the database
-	// based on WHERE
-	function Update($sTable, $aSet, $aWhere, $aExclude = ''){
+	// Updates a record in the database based on WHERE
+	function Update($table, $set, $where, $exclude = ''){
 		// Catch Exceptions
-		if(trim($sTable) == '' || !is_array($aSet) || !is_array($aWhere)){
+		if(trim($table) == '' || !is_array($set) || !is_array($where)){
 			return false;
 		}
-		if($aExclude == ''){
-			$aExclude = array();
+		if($exclude == ''){
+			$exclude = array();
 		}
 		
-		array_push($aExclude, 'MAX_FILE_SIZE');
+		array_push($exclude, 'MAX_FILE_SIZE'); // Automatically exclude this one
 		
-		$aSet 	= $this->SecureData($aSet);
-		$aWhere = $this->SecureData($aWhere);
+		$set 		= $this->SecureData($set);
+		$where 	= $this->SecureData($where);
 		
 		// SET
 		
-		$sSQLQuery = 'UPDATE `' . $sTable . '` SET ';
+		$query = "UPDATE `{$table}` SET ";
 		
-		foreach($aSet as $iKey=>$sValue){
-			if(in_array($iKey, $aExclude)){
+		foreach($set as $key=>$value){
+			if(in_array($key, $exclude)){
 				continue;
 			}
-			$sSQLQuery .= '`' . $iKey . '` = "' . $sValue . '", ';
+			$query .= "`{$key}` = '{$value}', ";
 		}
 		
-		$sSQLQuery = substr($sSQLQuery, 0, -2);
+		$query = substr($query, 0, -2);
 		
 		// WHERE
 		
-		$sSQLQuery .= ' WHERE ';
+		$query .= ' WHERE ';
 		
-		foreach($aWhere as $iKey=>$sValue){
-			$sSQLQuery .= '`' . $iKey . '` = "' . $sValue . '" AND ';
+		foreach($where as $key=>$value){
+			$query .= "`{$key}` = '{$value}' AND ";
 		}
 		
-		$sSQLQuery = substr($sSQLQuery, 0, -5);
+		$query = substr($query, 0, -5);
 		
-		if($this->ExecuteSQL($sSQLQuery)){
-			return true;
-		}else{
-			return false;
-		}
+		return $this->ExecuteSQL($query);
 	}
 	
 	// 'Arrays' a single result
 	function ArrayResult(){
-		$this->aArrayedResult = mysql_fetch_assoc($this->aResult) or die (mysql_error($this->sDBLink));
-		return $this->aArrayedResult;
+		$this->arrayedResult = mysql_fetch_assoc($this->result) or die (mysql_error($this->databaseLink));
+		return $this->arrayedResult;
 	}
 
 	// 'Arrays' multiple result
 	function ArrayResults(){
-		$this->aArrayedResults = array();
-		while ($aData = mysql_fetch_assoc($this->aResult)){
-			$this->aArrayedResults[] = $aData;
+		
+		if($this->records == 1){
+			return $this->ArrayResult();
 		}
-		return $this->aArrayedResults;
+		
+		$this->arrayedResult = array();
+		while ($data = mysql_fetch_assoc($this->result)){
+			$this->arrayedResult[] = $data;
+		}
+		return $this->arrayedResult;
 	}
 	
 	// 'Arrays' multiple results with a key
-	function ArrayResultsWithKey($sKey='id'){
-		if(isset($this->aArrayedResults)){
-			unset($this->aArrayedResults);
+	function ArrayResultsWithKey($key='id'){
+		if(isset($this->arrayedResult)){
+			unset($this->arrayedResult);
 		}
-		$this->aArrayedResults = array();
-		while($aRow = mysql_fetch_assoc($this->aResult)){
-			foreach($aRow as $sTheKey => $sTheValue){
-				$this->aArrayedResults[$aRow[$sKey]][$sTheKey] = $sTheValue;
+		$this->arrayedResult = array();
+		while($row = mysql_fetch_assoc($this->result)){
+			foreach($row as $theKey => $theValue){
+				$this->arrayedResult[$row[$key]][$theKey] = $theValue;
 			}
 		}
-		return $this->aArrayedResults;
-	}
-	
-	// Performs a 'mysql_real_escape_string' on the entire array/string
-	function SecureData($aData){
-		if(is_array($aData)){
-			foreach($aData as $iKey=>$sVal){
-				if(!is_array($aData[$iKey])){
-					$aData[$iKey] = mysql_real_escape_string($aData[$iKey], $this->sDBLink);
-				}
-			}
-		}else{
-			$aData = mysql_real_escape_string($aData, $this->sDBLink);
-		}
-		return $aData;
+		return $this->arrayedResult;
 	}
 }
 
