@@ -2,6 +2,8 @@
 /*
  *  Copyright (C) 2012
  *     Ed Rackham (http://github.com/a1phanumeric/PHP-MySQL-Class)
+ *  Changes to Version 0.8.1 copyright (C) 2013
+ *	Christopher Harms (http://github.com/neurotroph)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,7 +19,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// MySQL Class v0.8
+// MySQL Class v0.8.1
 class MySQL {
 	
 	// Base variables
@@ -213,7 +215,7 @@ class MySQL {
 				}
 			}
 			
-			$query = substr($query, 0, -5);
+			$query = substr($query, 0, -(strlen($operand)+2);
 
 		}else{
 			$query = substr($query, 0, -7);
