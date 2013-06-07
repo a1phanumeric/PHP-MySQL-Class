@@ -193,13 +193,13 @@ class MySQL {
 	
 	
 	// Gets a single row from $from where $where is true
-	function Select($from, $where='', $orderBy='', $limit='', $like=false, $operand='AND'){
+	function Select($from, $where='', $orderBy='', $limit='', $like=false, $operand='AND',$cols='*'){
 		// Catch Exceptions
 		if(trim($from) == ''){
 			return false;
 		}
 		
-		$query = "SELECT * FROM `{$from}` WHERE ";
+		$query = "SELECT {$cols} FROM `{$from}` WHERE ";
 		
 		if(is_array($where) && $where != ''){
 			// Prepare Variables
