@@ -307,6 +307,11 @@ class MySQL {
 		}
 		return $this->arrayedResult;
 	}
+
+	// Returns last insert ID
+	function LastInsertID(){
+		return mysql_insert_id();
+	}
 }
 
 ?>
