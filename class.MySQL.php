@@ -62,9 +62,7 @@ class MySQL {
 	// Connects class to database
 	// $persistant (boolean) - Use persistant connection?
 	private function Connect($persistant = false){
-		if($this->databaseLink){
-			mysql_close($this->databaseLink);
-		}
+		$this->CloseConnection();
 		
 		if($persistant){
 			$this->databaseLink = mysql_pconnect($this->hostname, $this->username, $this->password);
@@ -311,6 +309,13 @@ class MySQL {
 	// Returns last insert ID
 	function LastInsertID(){
 		return mysql_insert_id();
+	}
+
+	// Closes the connections
+	function CloseConnection(){
+		if($this->databaseLink){
+			mysql_close($this->databaseLink);
+		}
 	}
 }
 
