@@ -311,6 +311,12 @@ class MySQL {
 		return mysql_insert_id();
 	}
 
+	// Return number of rows
+	function CountRows($from, $where=''){
+		$result = $this->Select($from, $where, '', '', false, 'AND','count(*)');
+		return $result["count(*)"];
+	}
+
 	// Closes the connections
 	function CloseConnection(){
 		if($this->databaseLink){
