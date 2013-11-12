@@ -216,7 +216,7 @@ class MySQL {
 			$query = substr($query, 0, -(strlen($operand)+2));
 
 		}else{
-			$query = substr($query, 0, -7);
+			$query = substr($query, 0, -6);
 		}
 		
 		if($orderBy != ''){
