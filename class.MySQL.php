@@ -157,7 +157,7 @@ class MySQL {
 			$query .= "`{$key}` = '{$value}', ";
 		}
 		
-		$query = substr($query, 0, -2);
+		$query = substr($query, 0, -1);
 		
 		return $this->ExecuteSQL($query);
 	}
