@@ -121,12 +121,7 @@ class MySQL {
 			$this->records 	= @mysql_num_rows($this->result);
 			$this->affected	= @mysql_affected_rows($this->databaseLink);
 			
-			if($this->records > 0){
-				$this->ArrayResults();
-				return $this->arrayedResult;
-			}else{
-				return true;
-			}
+			return true;
 			
 		}else{
 			$this->lastError = mysql_error($this->databaseLink);
