@@ -17,31 +17,35 @@ Simply include this class into your project like so:
 
 `include_once('/path/to/class.MySQL.php');`
 
+Then modify config.php:
+
+`DB_NAME` The name of your database
+
+`DB_USER` Your username for the server / database
+
+`DB_PASSWORD` Your password for the server / database
+
+`DB_HOST` The hostname of the MySQL server (*optional*, defaults to 'localhost')
+
+
 Then invoke the class in your project using the class constructor (which now sets the db credentials):
 
-`$oMySQL = new MySQL(MYSQL_NAME, MYSQL_USER, MYSQL_PASS, [MYSQL_HOST]);`
-
-`MYSQL_NAME` The name of your database
-
-`MYSQL_USER` Your username for the server / database
-
-`MYSQL_PASS` Your password for the server / database
-
-`MYSQL_HOST` The hostname of the MySQL server (*optional*, defaults to 'localhost')
-
+`$oMySQL = new MySQL();`
 
 Usage
 -----
 
 To use this class, you'd first init the object like so (using example credentials):
 
-`$oMySQL = new MySQL('my_database','username','password');`
+`$oMySQL = new MySQL();`
 
 Provided you see no errors, you are now connected and can execute full MySQL queries using:
 
 `$oMySQL->ExecuteSQL($query);`
 
-`ExecuteSQL()` will return an array of results, or a true (if an UPDATE or DELETE).
+`ExecuteSQL()` will return an array of results(result[][]), or a true (if an UPDATE or DELETE).
+
+`ExecuteSQLOneResult()` will return an array if there is one result(result[]).
 
 There are other functions such as `Insert()`, `Delete()` and `Select()` which may or may not help with your queries to the database.
 
