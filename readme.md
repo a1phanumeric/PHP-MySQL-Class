@@ -7,43 +7,43 @@ This is a simple to use MySQL class that easily bolts on to any existing PHP app
 Latest Changes
 --------------
 
-I have refactored the entire class, and improved the code somewhat. This means that some things now work differently to the original version.
+Instead of accessing the class as an instance, now the class is designed for PDO. This will hopefully spark insight to developers to continue updating since PHP has brought better methods in the newer updates.
 
+Usuage
+-------
 
-Setup
------
+To use this class, you'd first create your class that extends MySQL and init the object like so (using example credentials):
 
-Simply include this class into your project like so:
+```php
+include_once 'class.MySQL.php';
 
-`include_once('/path/to/class.MySQL.php');`
+class NewNews extends MySQL {
+	function __construct() {
+    	parent::__construct($dbname, $dbusername, $dbpassword, $dbhost);
+    }
+}
 
-Then invoke the class in your project using the class constructor (which now sets the db credentials):
+```
 
-`$oMySQL = new MySQL(MYSQL_NAME, MYSQL_USER, MYSQL_PASS, [MYSQL_HOST]);`
+Add a function that will do a procedure requiring MySQL:
 
-`MYSQL_NAME` The name of your database
-
-`MYSQL_USER` Your username for the server / database
-
-`MYSQL_PASS` Your password for the server / database
-
-`MYSQL_HOST` The hostname of the MySQL server (*optional*, defaults to 'localhost')
-
-
-Usage
------
-
-To use this class, you'd first init the object like so (using example credentials):
-
-`$oMySQL = new MySQL('my_database','username','password');`
-
-Provided you see no errors, you are now connected and can execute full MySQL queries using:
-
-`$oMySQL->ExecuteSQL($query);`
-
-`ExecuteSQL()` will return an array of results, or a true (if an UPDATE or DELETE).
-
-There are other functions such as `Insert()`, `Delete()` and `Select()` which may or may not help with your queries to the database.
+```php
+class NewNews extends MySQL {
+	...
+    
+    function getEntriesExampleOne($limit='') {
+    	$result = parent::Select('news', NULL, 'post_date DESC', $limit, NULL, NULL);
+    	echo parent::getLastQuery();
+    	return $result;
+	}
+    
+    function getEntriesExampleTwo($query) {
+    	$result = parent::ExecuteSQL($query);
+        // print_r($result);
+        return $result;
+    }
+}
+```
 
 Example
 -------
@@ -63,7 +63,7 @@ To add a user, you'd simply use:
 
 ```
 $newUser = array('username' => 'Thrackhamator');
-$oMySQL->Insert($newUser, 'admin');
+parent::Insert($newUser, 'admin');
 ```
 
 And voila:
@@ -78,9 +78,9 @@ And voila:
 +----+---------------+
 ```
 
-To get the results into a usable array, just use `$oMySQL->Select('admin')` ...for example, doing the following:
+To get the results into a usable array, just use `parent::Select('admin')` ...for example, doing the following:
 
-`print_r($oMySQL->Select('admin'));`
+`print_r(parent::Select('admin'));`
 
 will yield:
 
