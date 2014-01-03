@@ -44,11 +44,11 @@ class MySQL {
 	 * Class Constructor *
 	 * *******************/
 	
-	function __construct($database, $username, $password, $hostname='localhost'){
+	function __construct($database, $username, $password, $hostname='localhost', $port=3306){
 		$this->database = $database;
 		$this->username = $username;
 		$this->password = $password;
-		$this->hostname = $hostname;
+		$this->hostname = $hostname.':'.$port;
 		
 		$this->Connect();
 	}
