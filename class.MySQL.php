@@ -62,7 +62,7 @@ class MySQL {
 	// Connects class to database
 	// $persistant (boolean) - Use persistant connection?
 	private function Connect($persistant = false){
-		$this->CloseConnection();
+		$this->closeConnection();
 		
 		if($persistant){
 			$this->databaseLink = mysql_pconnect($this->hostname, $this->username, $this->password);
@@ -115,14 +115,14 @@ class MySQL {
 	 * ******************/
 	
 	// Executes MySQL query
-	function ExecuteSQL($query){
+	function executeSQL($query){
 		$this->lastQuery 	= $query;
 		if($this->result 	= mysql_query($query, $this->databaseLink)){
 			$this->records 	= @mysql_num_rows($this->result);
 			$this->affected	= @mysql_affected_rows($this->databaseLink);
 			
 			if($this->records > 0){
-                         $this->ArrayResults();
+                         $this->arrayResults();
                          return $this->arrayedResult;
                         }else{
                          return true;
@@ -136,7 +136,7 @@ class MySQL {
 	
 	
 	// Adds a record to the database based on the array key names
-	function Insert($vars, $table, $exclude = ''){
+	function insert($table, $vars, $exclude = ''){
 		
 		// Catch Exclusions
 		if($exclude == ''){
@@ -159,11 +159,11 @@ class MySQL {
 		
 		$query = substr($query, 0, -2);
 		
-		return $this->ExecuteSQL($query);
+		return $this->executeSQL($query);
 	}
 	
 	// Deletes a record from the database
-	function Delete($table, $where='', $limit='', $like=false){
+	function delete($table, $where='', $limit='', $like=false){
 		$query = "DELETE FROM `{$table}` WHERE ";
 		if(is_array($where) && $where != ''){
 			// Prepare Variables
@@ -178,7 +178,7 @@ class MySQL {
 					$query .= "`{$key}` = '{$value}' AND ";
 				}
 			}
-			
+				
 			$query = substr($query, 0, -5);
 		}
 		
@@ -186,12 +186,12 @@ class MySQL {
 			$query .= ' LIMIT ' . $limit;
 		}
 		
-		return $this->ExecuteSQL($query);
+		return $this->executeSQL($query);
 	}
 	
 	
 	// Gets a single row from $from where $where is true
-	function Select($from, $where='', $orderBy='', $limit='', $like=false, $operand='AND',$cols='*'){
+	function select($from, $where='', $orderBy='', $limit='', $like=false, $operand='AND',$cols='*'){
 		// Catch Exceptions
 		if(trim($from) == ''){
 			return false;
@@ -227,12 +227,12 @@ class MySQL {
 			$query .= ' LIMIT ' . $limit;
 		}
 		
-		return $this->ExecuteSQL($query);
+		return $this->executeSQL($query);
 		
 	}
 	
 	// Updates a record in the database based on WHERE
-	function Update($table, $set, $where, $exclude = ''){
+	function update($table, $set, $where, $exclude = ''){
 		// Catch Exceptions
 		if(trim($table) == '' || !is_array($set) || !is_array($where)){
 			return false;
@@ -269,7 +269,7 @@ class MySQL {
 		
 		$query = substr($query, 0, -5);
 		
-		return $this->ExecuteSQL($query);
+		return $this->executeSQL($query);
 	}
 	
 	// 'Arrays' a single result
@@ -279,7 +279,7 @@ class MySQL {
 	}
 
 	// 'Arrays' multiple result
-	function ArrayResults(){
+	function arrayResults(){
 		
 		if($this->records == 1){
 			return $this->ArrayResult();
@@ -293,7 +293,7 @@ class MySQL {
 	}
 	
 	// 'Arrays' multiple results with a key
-	function ArrayResultsWithKey($key='id'){
+	function arrayResultsWithKey($key='id'){
 		if(isset($this->arrayedResult)){
 			unset($this->arrayedResult);
 		}
@@ -307,18 +307,18 @@ class MySQL {
 	}
 
 	// Returns last insert ID
-	function LastInsertID(){
+	function lastInsertID(){
 		return mysql_insert_id();
 	}
 
 	// Return number of rows
-	function CountRows($from, $where=''){
-		$result = $this->Select($from, $where, '', '', false, 'AND','count(*)');
+	function countRows($from, $where=''){
+		$result = $this->select($from, $where, '', '', false, 'AND','count(*)');
 		return $result["count(*)"];
 	}
 
 	// Closes the connections
-	function CloseConnection(){
+	function closeConnection(){
 		if($this->databaseLink){
 			mysql_close($this->databaseLink);
 		}
