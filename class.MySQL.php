@@ -120,6 +120,7 @@ class MySQL {
 		if($this->result 	= mysql_query($query, $this->databaseLink)){
 			$this->records 	= @mysql_num_rows($this->result);
 			$this->affected	= @mysql_affected_rows($this->databaseLink);
+			$this->insertid = @mysql_insert_id();
 			
 			if($this->records > 0){
                          $this->ArrayResults();
