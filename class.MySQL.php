@@ -168,10 +168,15 @@ class MySQL {
 
     // Executes MySQL query
     public function executeSQL($query){
-        $this->lastQuery 	= $query;
-        if($this->result 	= mysql_query($query, $this->databaseLink)){
-            $this->records 	= @mysql_num_rows($this->result);
-            $this->affected	= @mysql_affected_rows($this->databaseLink);
+        $this->lastQuery = $query;
+        if($this->result = mysql_query($query, $this->databaseLink)){
+            if (gettype($this->result) === 'resource') {
+                $this->records  = @mysql_num_rows($this->result);
+                $this->affected = @mysql_affected_rows($this->databaseLink);
+            } else {
+               $this->records  = 0;
+               $this->affected = 0;
+            }
 
             if($this->records > 0){
                 $this->arrayResults();
