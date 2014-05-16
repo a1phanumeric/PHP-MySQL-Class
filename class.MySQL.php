@@ -172,11 +172,10 @@ class MySQL {
         if($this->result = mysql_query($query, $this->databaseLink)){
             if (gettype($this->result) === 'resource') {
                 $this->records  = @mysql_num_rows($this->result);
-                $this->affected = @mysql_affected_rows($this->databaseLink);
             } else {
                $this->records  = 0;
-               $this->affected = 0;
             }
+            $this->affected = @mysql_affected_rows($this->databaseLink);
 
             if($this->records > 0){
                 $this->arrayResults();
