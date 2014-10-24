@@ -53,7 +53,13 @@ class MySQL {
 		$this->Connect();
 	}
 	
+	/* *******************
+	 * Class Destructor  *
+	 * *******************/
 	
+	function __destruct(){
+		$this->closeConnection();
+	}	
 	
 	/* *******************
 	 * Private Functions *
