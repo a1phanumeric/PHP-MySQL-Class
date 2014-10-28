@@ -23,13 +23,13 @@
 class MySQL {
 	
 	// Base variables
-    	private $lastError;         // Holds the last error
-	private $lastQuery;         // Holds the last query
-	private $result;            // Holds the MySQL query result
-	private $records;           // Holds the total number of records returned
-	private $affected;          // Holds the total number of records affected
-	private $rawResults;        // Holds raw 'arrayed' results
-	private $arrayedResult;     // Holds an array of the result
+    	public  $lastError;         // Holds the last error
+	public  $lastQuery;         // Holds the last query
+	public  $result;            // Holds the MySQL query result
+	public  $records;           // Holds the total number of records returned
+	public  $affected;          // Holds the total number of records affected
+	public  $rawResults;        // Holds raw 'arrayed' results
+	public  $arrayedResult;     // Holds an array of the result
 	
 	private $hostname;          // MySQL Hostname
 	private $username;          // MySQL Username
