@@ -23,7 +23,7 @@
 class MySQL {
 	
 	// Base variables
-    	public  $lastError;         // Holds the last error
+    public  $lastError;         // Holds the last error
 	public  $lastQuery;         // Holds the last query
 	public  $result;            // Holds the MySQL query result
 	public  $records;           // Holds the total number of records returned
@@ -380,7 +380,7 @@ class MySQL {
 
     // Returns last insert ID
     public function lastInsertID(){
-        return mysql_insert_id();
+        return mysql_insert_id($this->databaseLink);
     }
 
     // Return number of rows
