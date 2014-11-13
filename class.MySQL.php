@@ -23,20 +23,20 @@
 class MySQL {
 	
 	// Base variables
-    var $lastError;         // Holds the last error
-	var $lastQuery;         // Holds the last query
-	var $result;            // Holds the MySQL query result
-	var $records;           // Holds the total number of records returned
-	var $affected;          // Holds the total number of records affected
-	var $rawResults;        // Holds raw 'arrayed' results
-	var $arrayedResult;     // Holds an array of the result
+    public  $lastError;         // Holds the last error
+	public  $lastQuery;         // Holds the last query
+	public  $result;            // Holds the MySQL query result
+	public  $records;           // Holds the total number of records returned
+	public  $affected;          // Holds the total number of records affected
+	public  $rawResults;        // Holds raw 'arrayed' results
+	public  $arrayedResult;     // Holds an array of the result
 	
-	var $hostname;          // MySQL Hostname
-	var $username;          // MySQL Username
-	var $password;          // MySQL Password
-	var $database;          // MySQL Database
+	private $hostname;          // MySQL Hostname
+	private $username;          // MySQL Username
+	private $password;          // MySQL Password
+	private $database;          // MySQL Database
 	
-	var $databaseLink;      // Database Connection Link
+	private $databaseLink;      // Database Connection Link
 	
 
 
@@ -44,16 +44,22 @@ class MySQL {
 	 * Class Constructor *
 	 * *******************/
 	
-	function __construct($database, $username, $password, $hostname='localhost', $port=3306){
+	function __construct($database, $username, $password, $hostname='localhost', $port=3306, $persistant = false){
 		$this->database = $database;
 		$this->username = $username;
 		$this->password = $password;
 		$this->hostname = $hostname.':'.$port;
 		
-		$this->Connect();
+		$this->Connect($persistant);
 	}
 	
+	/* *******************
+	 * Class Destructor  *
+	 * *******************/
 	
+	function __destruct(){
+		$this->closeConnection();
+	}	
 	
 	/* *******************
 	 * Private Functions *
@@ -79,6 +85,8 @@ class MySQL {
 			$this->lastError = 'Could not connect to database: ' . mysql_error($this->databaseLink);
 			return false;
 		}
+		
+		$this->setCharset(); // TODO: remove forced charset find out a specific management
 		return true;
 	}
 	
@@ -118,7 +126,8 @@ class MySQL {
     private function CleanData($data, $type = ''){
         switch($type) {
             case 'none':
-                $data = $data;
+				// useless do not reaffect just do nothing
+                //$data = $data;
                 break;
             case 'str':
                 $data = settype( $data, 'string');
@@ -191,7 +200,18 @@ class MySQL {
         }
     }
 
+	public function commit(){
+		return mysql_query("COMMIT", $this->databaseLink);
+	}
+  
+	public function rollback(){
+		return mysql_query("ROLLBACK", $this->databaseLink);
+	}
 
+	public function setCharset( $charset = 'UTF8' ) {
+		return mysql_set_charset ( $this->SecureData($charset,'string'), $this->databaseLink);
+	}
+	
     // Adds a record to the database based on the array key names
     public function insert($table, $vars, $exclude = '', $datatypes){
 
@@ -360,7 +380,7 @@ class MySQL {
 
     // Returns last insert ID
     public function lastInsertID(){
-        return mysql_insert_id();
+        return mysql_insert_id($this->databaseLink);
     }
 
     // Return number of rows
@@ -372,6 +392,8 @@ class MySQL {
     // Closes the connections
     public function closeConnection(){
         if($this->databaseLink){
+			// Commit before closing just in case :)
+			$this->commit();
             mysql_close($this->databaseLink);
         }
     }
