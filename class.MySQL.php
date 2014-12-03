@@ -177,6 +177,7 @@ class MySQL {
 
     // Executes MySQL query
     public function executeSQL($query){
+    	 $query = mysqli_real_escape_string($query);
         $this->lastQuery = $query;
         if($this->result = mysql_query($query, $this->databaseLink)){
             if (gettype($this->result) === 'resource') {
