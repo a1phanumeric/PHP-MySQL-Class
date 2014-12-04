@@ -130,16 +130,16 @@ class MySQL {
                 //$data = $data;
                 break;
             case 'str':
-                $data = settype( $data, 'string');
+                settype( $data, 'string');
                 break;
             case 'int':
-                $data = settype( $data, 'integer');
+                settype( $data, 'integer');
                 break;
             case 'float':
-                $data = settype( $data, 'float');
+                settype( $data, 'float');
                 break;
             case 'bool':
-                $data = settype( $data, 'boolean');
+                settype( $data, 'boolean');
                 break;
             // Y-m-d H:i:s
             // 2014-01-01 12:30:30
@@ -150,7 +150,7 @@ class MySQL {
                 $data = $matches[1];
                 break;
             case 'ts2dt':
-                $data = settype( $data, 'integer');
+                settype( $data, 'integer');
                 $data = date('Y-m-d H:i:s', $data);
                 break;
 
