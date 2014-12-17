@@ -49,20 +49,46 @@ class PDO {
 	}
 
 
-	function execute($query, $values = array()){
+	function execute($query, $values = null){
+		if($values == null){
+			$values = array();
+		}else if(!is_array($values)){
+			$values = array($values);
+		}
 		$stmt = $this->pdo->prepare($query);
 		$stmt->execute($values);
 		return $stmt;
 	}
 
-	function fetch($query, $values = array()){
+	function fetch($query, $values = null){
+		if($values == null){
+			$values = array();
+		}else if(!is_array($values)){
+			$values = array($values);
+		}
 		$stmt = $this->execute($query, $values);
 		return $stmt->fetch(PDO::FETCH_ASSOC);
 	}
 
-	function fetchAll($query, $values = array()){
+	function fetchAll($query, $values = null, $key = null){
+		if($values == null){
+			$values = array();
+		}else if(!is_array($values)){
+			$values = array($values);
+		}
 		$stmt = $this->execute($query, $values);
-		return $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		// Allows the user to retrieve results using a
+		// column from the results as a key for the array
+		if($key != null && $results[0][$key]){
+			$keyed_results = array();
+			foreach($results as $result){
+				$keyed_results[$result[$key]] = $result;
+			}
+			$results = $keyed_results;
+		}
+		return $results;
 	}
 
 	function lastInsertId(){
