@@ -10,10 +10,6 @@ class PDO {
 		$this->connect();
 	}
 
-	function add_table_prefix($string){
-		return DATABASE_PREFIX . $string;
-	}
-
 
 	function prep_query($query){
 		return $this->pdo->prepare($query);
