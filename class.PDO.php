@@ -24,7 +24,7 @@ class PDO {
 			$password = DATABASE_PASS;
 
 			try {
-				$this->pdo = new PDO($dsn, $user, $password);
+				$this->pdo = new PDO($dsn, $user, $password, array(PDO::ATTR_PERSISTENT => true));
 				return true;
 			} catch (PDOException $e) {
 				$this->error = $e->getMessage();
