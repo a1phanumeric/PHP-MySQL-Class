@@ -1,6 +1,6 @@
 <?php
 
-class PDO {
+class DBPDO {
 
 	public $pdo;
 	private $error;

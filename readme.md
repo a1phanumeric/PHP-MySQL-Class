@@ -28,11 +28,11 @@ Firstly, define four constants for the host, database name, username and passwor
 
 Then, simply include this class into your project like so:
 
-`include_once('/path/to/class.PDO.php');`
+`include_once('/path/to/class.DBPDO.php');`
 
 Then invoke the class:
 
-`$DB = new PDO();`
+`$DB = new DBPDO();`
 
 
 Direct Queries
