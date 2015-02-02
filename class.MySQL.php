@@ -103,7 +103,7 @@ class MySQL {
 	
 	
 	// Performs a 'mysql_real_escape_string' on the entire array/string
-	private function SecureData($data, $types){
+	private function SecureData($data, $types=array()){
 		if(is_array($data)){
             $i = 0;
 			foreach($data as $key=>$val){
@@ -166,7 +166,6 @@ class MySQL {
                 $data = filter_var($data, FILTER_VALIDATE_EMAIL);
                 break;
             default:
-                $data = '';
                 break;
         }
         return $data;
@@ -216,7 +215,7 @@ class MySQL {
 	}
 	
     // Adds a record to the database based on the array key names
-    public function insert($table, $vars, $exclude = '', $datatypes){
+    public function insert($table, $vars, $exclude = '', $datatypes=array()){
 
         // Catch Exclusions
         if($exclude == ''){
@@ -242,7 +241,7 @@ class MySQL {
     }
 
     // Deletes a record from the database
-    public function delete($table, $where='', $limit='', $like=false, $wheretypes){
+    public function delete($table, $where='', $limit='', $like=false, $wheretypes=array()){
         $query = "DELETE FROM `{$table}` WHERE ";
         if(is_array($where) && $where != ''){
             // Prepare Variables
@@ -268,7 +267,7 @@ class MySQL {
 
 
     // Gets a single row from $from where $where is true
-    public function select($from, $where='', $orderBy='', $limit='', $like=false, $operand='AND',$cols='*', $wheretypes){
+    public function select($from, $where='', $orderBy='', $limit='', $like=false, $operand='AND',$cols='*', $wheretypes=array()){
         // Catch Exceptions
         if(trim($from) == ''){
             return false;
@@ -302,12 +301,14 @@ class MySQL {
             $query .= ' LIMIT ' . $limit;
         }
 
-        return $this->executeSQL($query);
+        $result = $this->executeSQL($query);
+        if(is_array($result)) return $result;
+        return array();
 
     }
 
     // Updates a record in the database based on WHERE
-    public function update($table, $set, $where, $exclude = '', $datatypes, $wheretypes){
+    public function update($table, $set, $where, $exclude = '', $datatypes=array(), $wheretypes=array()){
         // Catch Exceptions
         if(trim($table) == '' || !is_array($set) || !is_array($where)){
             return false;
