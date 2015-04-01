@@ -51,7 +51,7 @@ class DBPDO {
 		}else if(!is_array($values)){
 			$values = array($values);
 		}
-		$stmt = $this->pdo->prepare($query);
+		$stmt = $this->prep_query($query);
 		$stmt->execute($values);
 		return $stmt;
 	}
