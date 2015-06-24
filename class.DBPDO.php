@@ -40,7 +40,7 @@ class DBPDO {
 
 	function table_exists($table_name){
 		$stmt = $this->prep_query('SHOW TABLES LIKE ?');
-		$stmt->execute(array($this->add_table_prefix($table_name)));
+		$stmt->execute(array($table_name));
 		return $stmt->rowCount() > 0;
 	}
 
