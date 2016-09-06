@@ -19,7 +19,7 @@ class DBPDO {
 	function connect(){
 		if(!$this->pdo){
 
-			$dsn      = 'mysql:dbname=' . DATABASE_NAME . ';host=' . DATABASE_HOST;
+			$dsn      = 'mysql:dbname=' . DATABASE_NAME . ';host=' . DATABASE_HOST.';charset=utf8';
 			$user     = DATABASE_USER;
 			$password = DATABASE_PASS;
 
