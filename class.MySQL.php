@@ -263,7 +263,7 @@ class MySQL {
 
 		$result = $this->executeSQL($query);
 
-		if((int) @mysql_affected_rows($this->databaseLink) == 0){
+		if($this->affected == 0){
 			return false;
 		}
 		
@@ -352,7 +352,7 @@ class MySQL {
 
 		$result = $this->executeSQL($query);
 
-		if((int) @mysql_affected_rows($this->databaseLink) == 0){
+		if($this->affected == 0){
 			return false;
 		}
 
