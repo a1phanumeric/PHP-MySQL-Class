@@ -261,7 +261,13 @@ class MySQL {
             $query .= ' LIMIT ' . $limit;
         }
 
-        return $this->executeSQL($query);
+		$result = $this->executeSQL($query);
+
+		if((int) @mysql_affected_rows($this->databaseLink) == 0){
+			return false;
+		}
+		
+		return $result;
     }
 
 
@@ -344,7 +350,13 @@ class MySQL {
 
         $query = substr($query, 0, -5);
 
-        return $this->executeSQL($query);
+		$result = $this->executeSQL($query);
+
+		if((int) @mysql_affected_rows($this->databaseLink) == 0){
+			return false;
+		}
+
+        return $result;
     }
 
     // 'Arrays' a single result
