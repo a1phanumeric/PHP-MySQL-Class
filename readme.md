@@ -1,112 +1,122 @@
+Important Notice
+===============
+
+As of December 2014 I decided to upload the PHP MySQL Class I wrote a while back, and now use on a daily basis. It's PDO based (the `mysql_*` functions were due to be deprecated quite a while back now!).
+
+The old version is still a part of this repo for now, and the readme is still available [here](class.MySQL.README.md).
+
+
+
 PHP MySQL Class
 ===============
 
 This is a simple to use MySQL class that easily bolts on to any existing PHP application, streamlining your MySQL interactions.
 
 
-Latest Changes
---------------
-
-I have refactored the entire class, and improved the code somewhat. This means that some things now work differently to the original version.
-
-
 Setup
 -----
 
-Simply include this class into your project like so:
+Firstly, define four constants for the host, database name, username and password:
 
-`include_once('/path/to/class.MySQL.php');`
+`define('DATABASE_NAME', 'my_database');`
 
-Then invoke the class in your project using the class constructor (which now sets the db credentials):
+`define('DATABASE_USER', 'username');`
 
-`$oMySQL = new MySQL(MYSQL_NAME, MYSQL_USER, MYSQL_PASS, [MYSQL_HOST]);`
+`define('DATABASE_PASS', 'password');`
 
-`MYSQL_NAME` The name of your database
+`define('DATABASE_HOST', 'localhost');`
 
-`MYSQL_USER` Your username for the server / database
+Then, simply include this class into your project like so:
 
-`MYSQL_PASS` Your password for the server / database
+`include_once('/path/to/class.DBPDO.php');`
 
-`MYSQL_HOST` The hostname of the MySQL server (*optional*, defaults to 'localhost')
+Then invoke the class:
+
+`$DB = new DBPDO();`
 
 
-Usage
+Direct Queries
 -----
 
-To use this class, you'd first init the object like so (using example credentials):
+To perform direct queries where you don't need to return any results (such as update, insert etc...), just do the following:
 
-`$oMySQL = new MySQL('my_database','username','password');`
+`$DB->execute("UPDATE customers SET email = 'newemail@domain.com' WHERE username = 'a1phanumeric'");`
 
-Provided you see no errors, you are now connected and can execute full MySQL queries using:
+That's the easiest way to use the class, but we should be utilising prepared statements now. This means no more escaping shizzle! To utilise prepared statements, just change the above code to the following:
 
-`$oMySQL->ExecuteSQL($query);`
+`$DB->execute("UPDATE customers SET email = ? WHERE username = ?", array('newemail@domain.com', 'a1phanumeric'));`
 
-`ExecuteSQL()` will return an array of results, or a true (if an UPDATE or DELETE).
+The class will invoke PDO's prepared statements and put the email and username in their place respectively, as well as escape all values passed to it. **Note:** You don't need to put the speechmarks in on the query, the **?** is enough, and PDO will sort that out for you.
 
-There are other functions such as `Insert()`, `Delete()` and `Select()` which may or may not help with your queries to the database.
 
-Example
--------
+Fetching Rows
+-----
 
-To show you how easy this class is to use, consider you have a table called *admin*, which contains the following:
+To perform select queries with this class, the syntax is similar to the above, but we have two functions we can utilise, `fetch` and `fetchAll`.
 
-```
-+----+--------------+
-| id | username     |
-+----+--------------+
-|  1 | superuser    |
-|  2 | a1phanumeric |
-+----+--------------+
-```
+`fetch` simply returns one row, useful for getting a user by their ID for example. This returns an associative array and looks like:
 
-To add a user, you'd simply use:
+`$user = $DB->fetch("SELECT * FROM users WHERE id = ?", $id);`
 
-```
-$newUser = array('username' => 'Thrackhamator');
-$oMySQL->Insert($newUser, 'admin');
-```
+Now `$user` will contain an array of the fields for the row where there query matches. Oh, what's that? We didn't pass an array as the second parameter we just passed a single variable? That's cool, the class will treat a single variable the same as if you passed `array($id)`. It's just a handy little time-saver.
 
-And voila:
+`fetchAll` is used to fetch multiple rows, the parameters are similar, but the result returns an array of records:
+
+`$counties = $DB->fetchAll("SELECT * FROM counties");`
+
+The above will return a list of counties (in the UK) in my database like so:
 
 ```
-+----+---------------+
-| id | username      |
-+----+---------------+
-|  1 | superuser     |
-|  2 | a1phanumeric  |
-|  3 | Thrackhamator |
-+----+---------------+
-```
-
-To get the results into a usable array, just use `$oMySQL->Select('admin')` ...for example, doing the following:
-
-`print_r($oMySQL->Select('admin'));`
-
-will yield:
-
-```
-Array
+[0] => Array
 (
-    [0] => Array
-        (
-            [id] => 1
-            [username] => superuser
-        )
+    [id] => 1
+    [county] => London
+)
 
-    [1] => Array
-        (
-            [id] => 2
-            [username] => a1phanumeric
-        )
+[1] => Array
+(
+    [id] => 2
+    [county] => Bedfordshire
+)
 
-    [2] => Array
-        (
-            [id] => 3
-            [username] => Thrackhamator
-        )
-
+[2] => Array
+(
+    [id] => 3
+    [county] => Buckinghamshire
 )
 ```
+
+However, what if I want to loop over some raw data and check if the data matches the county name? To do that means either looping over these results every time, or shifting the key to the root dimension of the multi-dimensional array. However, if we pass a third variable, we can have that column as the key:
+
+`$counties = $DB->fetchAll("SELECT * FROM counties", null, 'county');`
+
+**Note:** I passed null as the second paramater as we're not passing any variables into the query to be escaped.
+
+This will now return an array like the following:
+
+```
+[London] => Array
+(
+    [id] => 1
+    [county] => London
+)
+
+[Bedfordshire] => Array
+(
+    [id] => 2
+    [county] => Bedfordshire
+)
+
+[Buckinghamshire] => Array
+(
+    [id] => 3
+    [county] => Buckinghamshire
+)
+```
+
+So of course we could now do something like:
+
+`if(isset($counties[$raw_data['county_name']])){ //Do something }`
 
 ### License
 
