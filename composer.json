@@ -2,13 +2,11 @@
     "name": "a1phanumeric/php-mysql-class",
     "description": "This is a simple to use PHP MySQL class that easily bolts on to any existing PHP application, streamlining your MySQL interactions.",
     "type": "library",
-    "license": "GPL",
     "authors": [
         {
             "name": "Ed",
             "email": "ed@rockfire.co"
         }
     ],
-    "minimum-stability": "dev",
     "require": {}
 }
