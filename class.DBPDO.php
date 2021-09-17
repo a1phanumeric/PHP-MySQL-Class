@@ -55,6 +55,18 @@ class DBPDO {
 		$stmt->execute($values);
 		return $stmt;
 	}
+	
+	function count($query, $values = null){
+		if($values == null){
+			$values = array();
+		}else if(!is_array($values)){
+			$values = array($values);
+		}
+		$stmt = $this->prep_query($query);
+		$stmt->execute($values);
+        	$number = $stmt->rowCount();
+		return $number;
+	}
 
 	function fetch($query, $values = null){
 		if($values == null){
