@@ -1,5 +1,7 @@
 <?php
 
+namespace A1phanumeric;
+
 class DBPDO {
 
 	public $pdo;
