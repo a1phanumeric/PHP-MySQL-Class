@@ -9,5 +9,8 @@
             "email": "ed@rockfire.co"
         }
     ],
-    "require": {}
+    "require": {},
+     "autoload": {
+        "psr-4": { "A1phanumeric\\": "A1phanumeric" }
+    }
 }
