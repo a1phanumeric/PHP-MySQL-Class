@@ -10,7 +10,7 @@
         }
     ],
     "require": {},
-     "autoload": {
-        "psr-4": { "A1phanumeric\\": "A1phanumeric" }
+    "autoload": {
+        "psr-4": { "A1phanumeric\\": "" }
     }
 }
