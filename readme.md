@@ -25,7 +25,7 @@ To use in your project, use the following:
 
 `$DB = new DBPDO('db_name', 'db_host', 'db_user', 'db_pass');`
 
-###Setup Before v2.0
+### Setup Before v2.0
 -----
 
 Firstly, define four constants for the host, database name, username and password:
