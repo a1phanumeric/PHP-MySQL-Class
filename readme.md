@@ -12,8 +12,20 @@ PHP MySQL Class
 
 This is a simple to use MySQL class that easily bolts on to any existing PHP application, streamlining your MySQL interactions.
 
+Setup v2.0+
+-----
 
-Setup
+Include the class using composer as below:
+
+`composer require a1phanumeric/php-mysql-class`
+
+To use in your project, use the following:
+
+`use A1phanumeric\DBPDO;`
+
+`$DB = new DBPDO('db_name', 'db_host', 'db_user', 'db_pass');`
+
+###Setup Before v2.0
 -----
 
 Firstly, define four constants for the host, database name, username and password:

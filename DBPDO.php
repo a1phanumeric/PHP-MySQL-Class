@@ -2,13 +2,24 @@
 
 namespace A1phanumeric;
 
+use \PDO;
+use \PDOException;
+
 class DBPDO {
 
 	public $pdo;
 	private $error;
+	private $dbname;
+	private $dbhost;
+	private $dbuser;
+	private $dbpass;
 
 
-	function __construct() {
+	function __construct($dbhost = '', $dbname = '', $dbuser = '', $dbpass= '') {
+		$this->dbhost = $dbhost;
+		$this->dbname = $dbname;
+		$this->dbuser = $dbuser;
+		$this->dbpass = $dbpass;
 		$this->connect();
 	}
 
@@ -21,9 +32,9 @@ class DBPDO {
 	function connect(){
 		if(!$this->pdo){
 
-			$dsn      = 'mysql:dbname=' . DATABASE_NAME . ';host=' . DATABASE_HOST.';charset=utf8';
-			$user     = DATABASE_USER;
-			$password = DATABASE_PASS;
+			$dsn      = 'mysql:dbname=' . $this->dbname . ';host=' . $this->dbhost . ';charset=utf8';
+			$user     = $this->dbuser;
+			$password = $this->dbpass;
 
 			try {
 				$this->pdo = new PDO($dsn, $user, $password, array(PDO::ATTR_PERSISTENT => true));
