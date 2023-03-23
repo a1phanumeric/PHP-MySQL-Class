@@ -23,7 +23,7 @@ To use in your project, use the following:
 
 `use A1phanumeric\DBPDO;`
 
-`$DB = new DBPDO('db_name', 'db_host', 'db_user', 'db_pass');`
+`$DB = new DBPDO('db_host', 'db_name', 'db_user', 'db_pass');`
 
 ### Setup Before v2.0
 -----
