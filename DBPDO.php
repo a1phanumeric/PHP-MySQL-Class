@@ -90,12 +90,14 @@ class DBPDO {
 
 		// Allows the user to retrieve results using a
 		// column from the results as a key for the array
-		if($key != null && $results[0][$key]){
-			$keyed_results = array();
-			foreach($results as $result){
-				$keyed_results[$result[$key]] = $result;
+		if(!empty($results)){
+			if ($key != null && $results[0][$key]) {
+				$keyed_results = array();
+				foreach ($results as $result) {
+					$keyed_results[$result[$key]] = $result;
+				}
+				$results = $keyed_results;
 			}
-			$results = $keyed_results;
 		}
 		return $results;
 	}
