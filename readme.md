@@ -25,6 +25,10 @@ To use in your project, use the following:
 
 `$DB = new DBPDO('db_host', 'db_name', 'db_user', 'db_pass');`
 
+Or, if wanting to use as a singleton instance:
+
+`$DB = DBPDO::getInstance('db_host', 'db_name', 'db_user', 'db_pass');`
+
 ### Setup Before v2.0
 -----
 
