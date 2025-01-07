@@ -36,8 +36,8 @@ class DBPDO
 	}
 
 	// Disallow cloning and unserializing
-    private function __clone() {}
-    private function __wakeup() {}
+    	private function __clone() {}
+    	private function __wakeup() {}
 
 
 	function prep_query($query)
@@ -66,7 +66,6 @@ class DBPDO
 				return true;
 			} catch (PDOException $e) {
 				$this->error = $e->getMessage();
-				// die($this->error);
 				return false;
 			}
 		} else {
@@ -101,7 +100,6 @@ class DBPDO
 			$stmt->execute($values);
 		} catch (PDOException $e) {
 			$this->error = $e->getMessage();
-			die($query . "<br />\n" . $this->error);
 			return false;
 		}
 		return $stmt;
