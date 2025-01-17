@@ -15,23 +15,23 @@ class DBPDO
 	private $dbhost;
 	private $dbuser;
 	private $dbpass;
-	private $orderwise;
+	private $sqlserver;
 
-	public static function getInstance($dbhost, $dbname, $dbuser, $dbpass, $orderwise = false)
+	public static function getInstance($dbhost, $dbname, $dbuser, $dbpass, $sqlserver = false)
 	{
 		if (self::$instance === null) {
-			self::$instance = new self($dbhost, $dbname, $dbuser, $dbpass, $orderwise);
+			self::$instance = new self($dbhost, $dbname, $dbuser, $dbpass, $sqlserver);
 		}
 		return self::$instance;
 	}
 
-	function __construct($dbhost = '', $dbname = '', $dbuser = '', $dbpass = '', $orderwise = false)
+	function __construct($dbhost = '', $dbname = '', $dbuser = '', $dbpass = '', $sqlserver = false)
 	{
 		$this->dbhost = $dbhost;
 		$this->dbname = $dbname;
 		$this->dbuser = $dbuser;
 		$this->dbpass = $dbpass;
-		$this->orderwise = $orderwise;
+		$this->sqlserver = $sqlserver;
 		$this->connect();
 	}
 
@@ -49,7 +49,7 @@ class DBPDO
 	function connect()
 	{
 		if (!$this->pdo) {
-			if($this->orderwise){
+			if($this->sqlserver){
 				$dsn  = 'sqlsrv:Server=' . $this->dbhost . ';Database=' . $this->dbname . ';Encrypt=no';
 			}else{
 				$dsn  = 'mysql:dbname=' . $this->dbname . ';host=' . $this->dbhost . ';charset=utf8mb4';
@@ -58,7 +58,7 @@ class DBPDO
 			$password = $this->dbpass;
 
 			try {
-				if($this->orderwise){
+				if($this->sqlserver){
 					$this->pdo = new PDO($dsn, $user, $password);
 				}else{
 					$this->pdo = new PDO($dsn, $user, $password, array(PDO::ATTR_PERSISTENT => true));
