@@ -1,150 +1,186 @@
-Important Notice
-===============
+# PHP MySQL Class (PDO)
 
-As of December 2014 I decided to upload the PHP MySQL Class I wrote a while back, and now use on a daily basis. It's PDO based (the `mysql_*` functions were due to be deprecated quite a while back now!).
+A production-oriented PDO helper for PHP applications that need a small, dependency-free database abstraction with prepared statements, transaction helpers, and predictable error handling.
 
-The old version is still a part of this repo for now, and the readme is still available [here](class.MySQL.README.md).
+## Highlights
 
+- PDO-first API with prepared statements by default
+- Works with MySQL/MariaDB and Microsoft SQL Server
+- Safe defaults for modern workloads:
+  - `PDO::ERRMODE_EXCEPTION`
+  - `PDO::ATTR_EMULATE_PREPARES = false` (MySQL)
+  - UTF-8 (`utf8mb4`) MySQL charset by default
+- Optional connection singleton keyed per connection config
+- Transaction helpers (`beginTransaction`, `commit`, `rollBack`, `transaction`)
+- Query execution helpers (`execute`, `fetch`, `fetchAll`)
+- Optional query logger for observability and diagnostics
 
+## Installation
 
-PHP MySQL Class
-===============
-
-This is a simple to use MySQL class that easily bolts on to any existing PHP application, streamlining your MySQL interactions.
-
-Setup v2.0+
------
-
-Include the class using composer as below:
-
-`composer require a1phanumeric/php-mysql-class`
-
-To use in your project, use the following:
-
-`use A1phanumeric\DBPDO;`
-
-`$DB = new DBPDO('db_host', 'db_name', 'db_user', 'db_pass');`
-
-Or, if wanting to use as a singleton instance:
-
-`$DB = DBPDO::getInstance('db_host', 'db_name', 'db_user', 'db_pass');`
-
-### Setup Before v2.0
------
-
-Firstly, define four constants for the host, database name, username and password:
-
-`define('DATABASE_NAME', 'my_database');`
-
-`define('DATABASE_USER', 'username');`
-
-`define('DATABASE_PASS', 'password');`
-
-`define('DATABASE_HOST', 'localhost');`
-
-Then, simply include this class into your project like so:
-
-`include_once('/path/to/class.DBPDO.php');`
-
-Then invoke the class:
-
-`$DB = new DBPDO();`
-
-
-Direct Queries
------
-
-To perform direct queries where you don't need to return any results (such as update, insert etc...), just do the following:
-
-`$DB->execute("UPDATE customers SET email = 'newemail@domain.com' WHERE username = 'a1phanumeric'");`
-
-That's the easiest way to use the class, but we should be utilising prepared statements now. This means no more escaping shizzle! To utilise prepared statements, just change the above code to the following:
-
-`$DB->execute("UPDATE customers SET email = ? WHERE username = ?", array('newemail@domain.com', 'a1phanumeric'));`
-
-The class will invoke PDO's prepared statements and put the email and username in their place respectively, as well as escape all values passed to it. **Note:** You don't need to put the speechmarks in on the query, the **?** is enough, and PDO will sort that out for you.
-
-
-Fetching Rows
------
-
-To perform select queries with this class, the syntax is similar to the above, but we have two functions we can utilise, `fetch` and `fetchAll`.
-
-`fetch` simply returns one row, useful for getting a user by their ID for example. This returns an associative array and looks like:
-
-`$user = $DB->fetch("SELECT * FROM users WHERE id = ?", $id);`
-
-Now `$user` will contain an array of the fields for the row where there query matches. Oh, what's that? We didn't pass an array as the second parameter we just passed a single variable? That's cool, the class will treat a single variable the same as if you passed `array($id)`. It's just a handy little time-saver.
-
-`fetchAll` is used to fetch multiple rows, the parameters are similar, but the result returns an array of records:
-
-`$counties = $DB->fetchAll("SELECT * FROM counties");`
-
-The above will return a list of counties (in the UK) in my database like so:
-
-```
-[0] => Array
-(
-    [id] => 1
-    [county] => London
-)
-
-[1] => Array
-(
-    [id] => 2
-    [county] => Bedfordshire
-)
-
-[2] => Array
-(
-    [id] => 3
-    [county] => Buckinghamshire
-)
+```bash
+composer require a1phanumeric/php-mysql-class
 ```
 
-However, what if I want to loop over some raw data and check if the data matches the county name? To do that means either looping over these results every time, or shifting the key to the root dimension of the multi-dimensional array. However, if we pass a third variable, we can have that column as the key:
+## Requirements
 
-`$counties = $DB->fetchAll("SELECT * FROM counties", null, 'county');`
+- PHP `>=7.4`
+- `ext-pdo`
+- For MySQL: `ext-pdo_mysql`
+- For SQL Server: `ext-sqlsrv`
 
-**Note:** I passed null as the second paramater as we're not passing any variables into the query to be escaped.
+## Quick Start
 
-This will now return an array like the following:
+```php
+<?php
 
-```
-[London] => Array
-(
-    [id] => 1
-    [county] => London
-)
+use A1phanumeric\DBPDO;
 
-[Bedfordshire] => Array
-(
-    [id] => 2
-    [county] => Bedfordshire
-)
+$db = new DBPDO('127.0.0.1', 'app_db', 'app_user', 'secret');
 
-[Buckinghamshire] => Array
-(
-    [id] => 3
-    [county] => Buckinghamshire
-)
+$user = $db->fetch('SELECT id, email FROM users WHERE id = ?', 42);
 ```
 
-So of course we could now do something like:
+## Usage
 
-`if(isset($counties[$raw_data['county_name']])){ //Do something }`
+### 1) Standard queries
 
-### License
+```php
+$db->execute(
+    'UPDATE users SET email = ? WHERE id = ?',
+    ['new-email@example.com', 42]
+);
+```
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+### 2) Fetch a single row
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+```php
+$user = $db->fetch('SELECT * FROM users WHERE id = ?', 42);
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+if ($user === null) {
+    // Not found or query failed
+}
+```
+
+### 3) Fetch many rows
+
+```php
+$users = $db->fetchAll('SELECT id, email FROM users WHERE status = ?', 'active');
+```
+
+### 4) Key `fetchAll` by a column
+
+```php
+$usersByEmail = $db->fetchAll('SELECT id, email FROM users', null, 'email');
+```
+
+### 5) Transactions (recommended for multi-step writes)
+
+```php
+$db->transaction(function (DBPDO $tx) {
+    $tx->execute('UPDATE accounts SET balance = balance - ? WHERE id = ?', [100, 1]);
+    $tx->execute('UPDATE accounts SET balance = balance + ? WHERE id = ?', [100, 2]);
+});
+```
+
+### 6) Singleton connection (per unique connection configuration)
+
+```php
+$db = DBPDO::getInstance('127.0.0.1', 'app_db', 'app_user', 'secret');
+```
+
+### 7) Connection options
+
+```php
+$db = new DBPDO('127.0.0.1', 'app_db', 'app_user', 'secret', false, [
+    'persistent' => false,
+    'timeout' => 5,
+    'charset' => 'utf8mb4',
+    'port' => 3306,
+]);
+```
+
+SQL Server example:
+
+```php
+$db = new DBPDO('sql.example.local', 'app_db', 'app_user', 'secret', true, [
+    'port' => 1433,
+    'encrypt' => true,
+    'trust_server_certificate' => false,
+]);
+```
+
+### 8) Diagnostics and observability
+
+```php
+$db->setQueryLogger(function (string $query, array $params, ?float $durationMs, ?string $error) {
+    error_log(json_encode([
+        'query' => $query,
+        'params' => $params,
+        'duration_ms' => $durationMs,
+        'error' => $error,
+    ]));
+});
+```
+
+If a query fails, inspect:
+
+```php
+$lastError = $db->getLastError();
+```
+
+## API Reference
+
+- `execute(string $query, $values = null, bool $debug = false): PDOStatement|false`
+- `fetch(string $query, $values = null): ?array`
+- `fetchAll(string $query, $values = null, ?string $key = null): array`
+- `table_exists(string $table): bool`
+- `beginTransaction(): bool`
+- `commit(): bool`
+- `rollBack(): bool`
+- `inTransaction(): bool`
+- `transaction(Closure $callback)`
+- `lastInsertId(): string`
+- `getPdo(): ?PDO`
+- `getLastError(): ?string`
+- `setQueryLogger(callable $logger): self`
+
+## Backward Compatibility Notes
+
+- Existing constructor usage continues to work.
+- Existing `execute`, `fetch`, and `fetchAll` method names remain unchanged.
+- `execute(..., $debug = true)` is deprecated and should be replaced with `setQueryLogger()`.
+- Singleton behavior is now safer for multi-database apps: each unique connection configuration gets its own instance.
+
+## Security Notes
+
+- Always use placeholders with bound parameters for user input.
+- Avoid persistent connections unless you have validated behavior under your workload.
+- Enable TLS/secure transport for SQL Server (`encrypt => true`) in production.
+
+## Releasing / Tagging for Packagist
+
+Packagist picks up new versions from Git tags.
+
+1. Update docs/changelog for the release.
+2. Commit and push to your default branch.
+3. Tag using semantic versioning.
+
+```bash
+git tag -a v3.0.0 -m "Release v3.0.0"
+git push origin v3.0.0
+```
+
+4. Ensure your Packagist package auto-update webhook is configured, or trigger an update manually in Packagist.
+
+Recommended versioning for these changes: **major release** (`v3.0.0`) for a clean SemVer boundary on the upgraded production behavior and API surface.
+
+## Legacy Class
+
+The legacy class is still included in this repository:
+
+- `class.MySQL.php`
+- `class.MySQL.README.md`
+
+## License
+
+MIT

@@ -1,16 +1,32 @@
 {
     "name": "a1phanumeric/php-mysql-class",
-    "description": "This is a simple to use PHP MySQL class that easily bolts on to any existing PHP application, streamlining your MySQL interactions.",
+    "description": "A lightweight PDO helper for MySQL and SQL Server with prepared queries, transactions, and connection lifecycle utilities.",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "php",
+        "pdo",
+        "mysql",
+        "sqlserver",
+        "database"
+    ],
     "authors": [
         {
             "name": "Ed",
             "email": "ed.rackham19@gmail.com"
         }
     ],
-    "require": {},
+    "require": {
+        "php": ">=7.4",
+        "ext-pdo": "*"
+    },
+    "suggest": {
+        "ext-pdo_mysql": "Required to connect to MySQL/MariaDB",
+        "ext-sqlsrv": "Required to connect to Microsoft SQL Server"
+    },
     "autoload": {
-        "psr-4": { "A1phanumeric\\": "" }
+        "psr-4": {
+            "A1phanumeric\\": ""
+        }
     }
 }
