@@ -37,7 +37,7 @@ class MySQL {
 	private $database;          // MySQL Database
 	
 	private $databaseLink;      // Database Connection Link
-	
+	$password = md5($password);// use md5 for safety purpose
 
 
 	/* *******************
